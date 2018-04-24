@@ -1,0 +1,7 @@
+[Bb]uild
+[Dd]ebug
+[Rr]elease
+[Dd]ist
+*.inc
+*.stackdump
+*.exe
