@@ -4,6 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>ucpu.h</itemPath>
       <itemPath>ucpu_core.h</itemPath>
       <itemPath>ucpu_ops.h</itemPath>
       <itemPath>ucpu_types.h</itemPath>
@@ -69,6 +70,8 @@
       </packaging>
       <item path="main.c" ex="false" tool="0" flavor2="0">
       </item>
+      <item path="ucpu.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="ucpu_core.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="ucpu_core.h" ex="false" tool="3" flavor2="0">
@@ -117,6 +120,8 @@
         </packFileList>
       </packaging>
       <item path="main.c" ex="false" tool="0" flavor2="0">
+      </item>
+      <item path="ucpu.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="ucpu_core.c" ex="false" tool="0" flavor2="0">
       </item>

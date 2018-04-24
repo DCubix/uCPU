@@ -3,6 +3,8 @@
 
 #include "ucpu_core.h"
 
+#include <strings.h>
+
 typedef void (*uOpFunction)(uCPU* cpu);
 
 typedef struct uOp_t {
@@ -79,6 +81,97 @@ UCPU_DEFINE_COND_JMP(jgt, >)
 UCPU_DEFINE_COND_JMP(jle, <=)
 UCPU_DEFINE_COND_JMP(jge, >=)
 
+UCPU_DEFINE_OP(push) {
+	u8 v = ucpu_fetch(cpu);
+	u8 t = ucpu_fetch(cpu);
+	
+	u8 val = IS(t, uArgType_Literal) ? v : umem_read(cpu->ram, v);
+	ustack_push(cpu->stack, val);
+}
+
+UCPU_DEFINE_OP(pop) {
+	u8 v = ucpu_fetch(cpu);
+	u8 t = ucpu_fetch(cpu);
+	
+	if (!IS(t, uArgType_Memory)) {
+		LOG("Argument must be a memory location.");
+		return;
+	}
+	
+	if (ustack_empty(cpu->stack)) {
+		LOG("Stack is empty.");
+		return;
+	}
+	
+	umem_write(cpu->ram, v, ustack_pop(cpu->stack));
+}
+
+#define UCPU_DEFINE_BINOP(name, op) \
+UCPU_DEFINE_OP(name) { \
+	u8 to = ucpu_fetch(cpu); \
+	u8 tot = ucpu_fetch(cpu); \
+	u8 va = ucpu_fetch(cpu); \
+	u8 at = ucpu_fetch(cpu); \
+	u8 vb = ucpu_fetch(cpu); \
+	u8 bt = ucpu_fetch(cpu); \
+	if (!IS(tot, uArgType_Memory)) { \
+		LOG("First argument should be a memory location!"); \
+		return; \
+	} \
+	u8 a = IS(at, uArgType_Literal) ? va : umem_read(cpu->ram, va); \
+	u8 b = IS(bt, uArgType_Literal) ? vb : umem_read(cpu->ram, vb); \
+	u8 v = a op b; \
+	umem_write(cpu->ram, to, v); \
+}
+
+UCPU_DEFINE_BINOP(add, +)
+UCPU_DEFINE_BINOP(sub, -)
+UCPU_DEFINE_BINOP(mul, *)
+UCPU_DEFINE_BINOP(div, /)
+UCPU_DEFINE_BINOP(shl, <<)
+UCPU_DEFINE_BINOP(shr, >>)
+
+UCPU_DEFINE_OP(inc) {
+	u8 to = ucpu_fetch(cpu);
+	u8 tot = ucpu_fetch(cpu);
+	if (!IS(tot, uArgType_Memory)) {
+		LOG("Argument should be a memory location!");
+		return;
+	}
+	u8 val = umem_read(cpu->ram, to);
+	umem_write(cpu->ram, to, val++);
+}
+
+UCPU_DEFINE_OP(dec) {
+	u8 to = ucpu_fetch(cpu);
+	u8 tot = ucpu_fetch(cpu);
+	if (!IS(tot, uArgType_Memory)) {
+		LOG("Argument should be a memory location!");
+		return;
+	}
+	u8 val = umem_read(cpu->ram, to);
+	umem_write(cpu->ram, to, val--);
+}
+
+UCPU_DEFINE_OP(call) {
+	u8 routine = ucpu_fetch(cpu);
+	u8 rt = ucpu_fetch(cpu);
+	if (!IS(rt, uArgType_Literal)) {
+		LOG("Argument should be a literal!");
+		return;
+	}
+	ustack_push(cpu->call_stack, cpu->pc);
+	cpu->pc = routine;
+}
+
+UCPU_DEFINE_OP(ret) {
+	if (ustack_empty(cpu->call_stack)) {
+		LOG("Unexpected return.");
+		return;
+	}
+	cpu->pc = ustack_pop(cpu->call_stack);
+}
+		
 static const uOp uCPU_Ops[] = {
 	{ "end", op(end) },
 	{ "put", op(put) },
@@ -90,8 +183,24 @@ static const uOp uCPU_Ops[] = {
 	{ "jgt", op(jgt) },
 	{ "jle", op(jle) },
 	{ "jge", op(jge) },
+	{ "push", op(push) },
+	{ "pop", op(pop) },
+	{ "add", op(add) },
+	{ "sub", op(sub) },
+	{ "mul", op(mul) },
+	{ "div", op(div) },
+	{ "shl", op(shl) },
+	{ "shr", op(shr) },
+	{ "inc", op(inc) },
+	{ "dec", op(dec) },
+	{ "call", op(call) },
+	{ "ret", op(ret) },
 	{ NULL, NULL } // guard
 };
+
+u16 uops_get_op(const char* name);
+
+#define UOP(name) uops_get_op(name)
 
 #endif /* UCPU_OPS_H */
 

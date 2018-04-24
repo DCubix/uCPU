@@ -19,13 +19,13 @@ typedef struct uCPU_t {
 	bool stop;
 } uCPU;
 
-extern uCPU* ucpu_new(u8* program, u16 size);
-extern void ucpu_free(uCPU* cpu);
+uCPU* ucpu_new(u8* program, u16 size);
+void ucpu_free(uCPU* cpu);
 
-extern void ucpu_tick(uCPU* cpu);
-extern u8 ucpu_fetch(uCPU* cpu);
-extern u16 ucpu_fetch16(uCPU* cpu);
+void ucpu_tick(uCPU* cpu);
+u8 ucpu_fetch(uCPU* cpu);
+u16 ucpu_fetch16(uCPU* cpu);
 
-extern void ucpu_run(uCPU* cpu);
+void ucpu_run(uCPU* cpu);
 
 #endif // UCPU_CORE_H
