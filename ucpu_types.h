@@ -41,4 +41,6 @@ void umem_write(uMem* mem, u16 addr, u8 v);
 u16 umem_read16(uMem* mem, u16 addr);
 void umem_write16(uMem* mem, u16 addr, u16 v);
 
+void umem_dump(uMem* mem, FILE* fp);
+
 #endif // UCPU_TYPES_H

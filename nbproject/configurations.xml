@@ -12,6 +12,7 @@
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
                    projectFiles="true">
+      <itemPath>dump.bin</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
@@ -68,6 +69,8 @@
                             group="bin"/>
         </packFileList>
       </packaging>
+      <item path="dump.bin" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="ucpu.h" ex="false" tool="3" flavor2="0">
@@ -119,6 +122,8 @@
                             group="bin"/>
         </packFileList>
       </packaging>
+      <item path="dump.bin" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="main.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="ucpu.h" ex="false" tool="3" flavor2="0">

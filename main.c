@@ -4,7 +4,6 @@
 #include "ucpu.h"
 
 int main(int argc, char** argv) {
-	
 	const u8 program[] = {
 		UOP("put"), 'H', uArgType_Literal,
 		UOP("put"), 'e', uArgType_Literal,
@@ -15,6 +14,12 @@ int main(int argc, char** argv) {
 		UOP("end")
 	};
 	uCPU* cpu = ucpu_new(program, LEN(program));
+	
+	FILE* fp = fopen("dump.bin", "wb");
+	if (fp) {
+		umem_dump(cpu->ram, fp);
+		fclose(fp);
+	}
 	
 	ucpu_run(cpu);
 	

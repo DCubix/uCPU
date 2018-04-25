@@ -64,3 +64,12 @@ u16 umem_read16(uMem* mem, u16 addr) {
 void umem_write16(uMem* mem, u16 addr, u16 v) {
 	memset(mem->data + addr, v, sizeof(u16));
 }
+
+void umem_dump(uMem* mem, FILE* fp) {
+	if (!fp || (fp && ferror(fp))) {
+		LOG("Invalid file.");
+		return;
+	}
+	
+	fwrite(mem->data, sizeof(u8), mem->size, fp);
+}

@@ -24,7 +24,7 @@ void ucpu_free(uCPU* cpu) {
 
 void ucpu_tick(uCPU* cpu) {
 	u8 i = ucpu_fetch(cpu);
-	if (i < LEN(uCPU_Ops)) {
+	if (uops_op_exists(i)) {
 		uCPU_Ops[i].fn(cpu);
 	} else {
 		LOG("Unknown instruction.");
