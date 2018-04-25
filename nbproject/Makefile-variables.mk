@@ -11,9 +11,9 @@ CND_PLATFORM_Debug=MinGW-Windows
 CND_ARTIFACT_DIR_Debug=dist/Debug/MinGW-Windows
 CND_ARTIFACT_NAME_Debug=ucpu
 CND_ARTIFACT_PATH_Debug=dist/Debug/MinGW-Windows/ucpu
-CND_PACKAGE_DIR_Debug=
-CND_PACKAGE_NAME_Debug=
-CND_PACKAGE_PATH_Debug=
+CND_PACKAGE_DIR_Debug=dist/Debug/MinGW-Windows/package
+CND_PACKAGE_NAME_Debug=ucpu.zip
+CND_PACKAGE_PATH_Debug=dist/Debug/MinGW-Windows/package/ucpu.zip
 # Release configuration
 CND_PLATFORM_Release=MinGW-Windows
 CND_ARTIFACT_DIR_Release=dist/Release/MinGW-Windows

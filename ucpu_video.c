@@ -1,5 +1,7 @@
 #include "ucpu_video.h"
 
+#include <string.h>
+
 uColor uCPU_Palette[] = {
 	{ 255, 228, 194 },
 	{ 220, 164, 86 },
@@ -49,8 +51,12 @@ void ugfx_free(uGfx* gfx) {
 	umem_free(gfx->vram);
 }
 
+void ugfx_set(uGfx* gfx, u16 x, u16 y, u8 color) {
+	umem_write(gfx->vram, x + y * UCPU_VIDEO_WIDTH, color);
+}
+
 void ugfx_clear(uGfx* gfx, u8 color) {
-	memset(gfx->vram->data, color, gfx->vram->size);
+	memset(gfx->vram->data, color, gfx->vram->size * sizeof(u16));
 }
 
 void ugfx_flip(uGfx* gfx) {

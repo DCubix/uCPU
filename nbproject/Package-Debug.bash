@@ -15,7 +15,7 @@ NBTMPDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}/tmp-packaging
 TMPDIRNAME=tmp-packaging
 OUTPUT_PATH=${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/ucpu
 OUTPUT_BASENAME=ucpu
-PACKAGE_TOP_DIR=
+PACKAGE_TOP_DIR=ucpu/
 
 # Functions
 function checkReturnCode
@@ -54,21 +54,25 @@ function copyFileToTmpDir
 
 # Setup
 cd "${TOP}"
-mkdir -p null
+mkdir -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package
 rm -rf ${NBTMPDIR}
 mkdir -p ${NBTMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory "${NBTMPDIR}/bin"
+makeDirectory "${NBTMPDIR}/ucpu/bin"
+copyFileToTmpDir "${OUTPUT_PATH}.exe" "${NBTMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}.exe" 0755
+
+cd "${TOP}"
+makeDirectory "${NBTMPDIR}/ucpu/bin"
 copyFileToTmpDir "${OUTPUT_PATH}.exe" "${NBTMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}.exe" 0755
 
 
 # Generate zip file
 cd "${TOP}"
-rm -f 
+rm -f ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/ucpu.zip
 cd ${NBTMPDIR}
-zip -r  ../../../../ *
+zip -r  ../../../../${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/package/ucpu.zip *
 checkReturnCode
 
 # Cleanup

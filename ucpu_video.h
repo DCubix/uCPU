@@ -10,6 +10,8 @@
 #define UCPU_VIDEO_HEIGHT 96
 #define UCPU_WINDOW_UPSCALE 4
 
+#define POS(x, y) (x + y * UCPU_VIDEO_WIDTH)
+
 enum uCPUColor {
 	uCPUColor_Bright = 0,
 	uCPUColor_Shade1,
@@ -35,6 +37,7 @@ typedef struct uGfx_t {
 uGfx* ugfx_new();
 void ugfx_free(uGfx* gfx);
 
+void ugfx_set(uGfx* gfx, u16 x, u16 y, u8 color);
 void ugfx_clear(uGfx* gfx, u8 color);
 
 void ugfx_flip(uGfx* gfx);
