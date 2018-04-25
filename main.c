@@ -4,20 +4,20 @@
 #include "ucpu.h"
 
 int main(int argc, char** argv) {
-	const u8 program[] = {
-		UOP("put"), 'H', uArgType_Literal,
-		UOP("put"), 'e', uArgType_Literal,
-		UOP("put"), 'l', uArgType_Literal,
-		UOP("put"), 'l', uArgType_Literal,
-		UOP("put"), 'o', uArgType_Literal,
-		UOP("put"), '!', uArgType_Literal,
+	u8 program[] = {
+		UOP("cls"), 0x3, uArgType_Literal,
+		UOP("vpok"), 10, uArgType_Literal, 10, uArgType_Literal, 0x2, uArgType_Literal,
+		UOP("vpok"), 20, uArgType_Literal, 20, uArgType_Literal, 0x2, uArgType_Literal,
+		UOP("vpok"), 30, uArgType_Literal, 30, uArgType_Literal, 0x2, uArgType_Literal,
+		UOP("vpok"), 40, uArgType_Literal, 40, uArgType_Literal, 0x2, uArgType_Literal,
+		UOP("flip"),
 		UOP("end")
 	};
 	uCPU* cpu = ucpu_new(program, LEN(program));
 	
 	FILE* fp = fopen("dump.bin", "wb");
 	if (fp) {
-		umem_dump(cpu->ram, fp);
+		umem_dump(cpu->program, fp);
 		fclose(fp);
 	}
 	

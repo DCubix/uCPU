@@ -21,7 +21,7 @@ FC=gfortran
 AS=as
 
 # Macros
-CND_PLATFORM=Cygwin-Windows
+CND_PLATFORM=MinGW-Windows
 CND_DLIB_EXT=dll
 CND_CONF=Debug
 CND_DISTDIR=dist
@@ -38,11 +38,12 @@ OBJECTFILES= \
 	${OBJECTDIR}/main.o \
 	${OBJECTDIR}/ucpu_core.o \
 	${OBJECTDIR}/ucpu_ops.o \
-	${OBJECTDIR}/ucpu_types.o
+	${OBJECTDIR}/ucpu_types.o \
+	${OBJECTDIR}/ucpu_video.o
 
 
 # C Compiler Flags
-CFLAGS=-m64
+CFLAGS=-m32
 
 # CC Compiler Flags
 CCFLAGS=
@@ -55,7 +56,7 @@ FFLAGS=
 ASFLAGS=--64
 
 # Link Libraries and Options
-LDLIBSOPTIONS=
+LDLIBSOPTIONS=-lmingw32 `pkg-config --libs sdl2`  
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -68,22 +69,27 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/ucpu.exe: ${OBJECTFILES}
 ${OBJECTDIR}/main.o: main.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
+	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
 
 ${OBJECTDIR}/ucpu_core.o: ucpu_core.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_core.o ucpu_core.c
+	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_core.o ucpu_core.c
 
 ${OBJECTDIR}/ucpu_ops.o: ucpu_ops.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_ops.o ucpu_ops.c
+	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_ops.o ucpu_ops.c
 
 ${OBJECTDIR}/ucpu_types.o: ucpu_types.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g -std=c11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_types.o ucpu_types.c
+	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_types.o ucpu_types.c
+
+${OBJECTDIR}/ucpu_video.o: ucpu_video.c
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_video.o ucpu_video.c
 
 # Subprojects
 .build-subprojects:

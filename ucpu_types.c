@@ -36,6 +36,7 @@ bool ustack_full(uStack* stack) {
 uMem* umem_new(u16 size) {
 	uMem* mem = (uMem*) malloc(sizeof(uMem));
 	mem->data = (u8*) malloc(size);
+	mem->data_sizes = (u8*) malloc(size);
 	mem->size = size;
 	memset(mem->data, 0, size);
 	return mem;
@@ -43,7 +44,6 @@ uMem* umem_new(u16 size) {
 
 void umem_free(uMem* mem) {
 	free(mem->data);
-	free(mem);
 	mem->size = 0;
 }
 

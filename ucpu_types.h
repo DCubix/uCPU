@@ -11,7 +11,7 @@ typedef int8_t i8;
 typedef uint8_t u8;
 typedef uint16_t u16;
 
-#define LOG(msg) printf("[LOG %s] %s", __FUNCTION__, msg)
+#define LOG(msg) printf("[LOG %s] %s\n", __FUNCTION__, msg)
 #define LEN(a) (sizeof(a) / sizeof(a[0]))
 
 #define UCPU_USTACK_MAX_SIZE 256
@@ -29,7 +29,9 @@ bool ustack_full(uStack* stack);
 
 typedef struct uMem_t {
 	u8* data;
+	u16* data_sizes;
 	u16 size;
+	u16 off, ps;
 } uMem;
 
 uMem* umem_new(u16 size);

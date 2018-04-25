@@ -7,21 +7,21 @@ CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
 # Debug configuration
-CND_PLATFORM_Debug=Cygwin-Windows
-CND_ARTIFACT_DIR_Debug=dist/Debug/Cygwin-Windows
+CND_PLATFORM_Debug=MinGW-Windows
+CND_ARTIFACT_DIR_Debug=dist/Debug/MinGW-Windows
 CND_ARTIFACT_NAME_Debug=ucpu
-CND_ARTIFACT_PATH_Debug=dist/Debug/Cygwin-Windows/ucpu
+CND_ARTIFACT_PATH_Debug=dist/Debug/MinGW-Windows/ucpu
 CND_PACKAGE_DIR_Debug=
 CND_PACKAGE_NAME_Debug=
 CND_PACKAGE_PATH_Debug=
 # Release configuration
-CND_PLATFORM_Release=Cygwin-Windows
-CND_ARTIFACT_DIR_Release=dist/Release/Cygwin-Windows
+CND_PLATFORM_Release=MinGW-Windows
+CND_ARTIFACT_DIR_Release=dist/Release/MinGW-Windows
 CND_ARTIFACT_NAME_Release=ucpu
-CND_ARTIFACT_PATH_Release=dist/Release/Cygwin-Windows/ucpu
-CND_PACKAGE_DIR_Release=dist/Release/Cygwin-Windows/package
+CND_ARTIFACT_PATH_Release=dist/Release/MinGW-Windows/ucpu
+CND_PACKAGE_DIR_Release=dist/Release/MinGW-Windows/package
 CND_PACKAGE_NAME_Release=ucpu.zip
-CND_PACKAGE_PATH_Release=dist/Release/Cygwin-Windows/package/ucpu.zip
+CND_PACKAGE_PATH_Release=dist/Release/MinGW-Windows/package/ucpu.zip
 #
 # include compiler specific variables
 #
