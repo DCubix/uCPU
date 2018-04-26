@@ -40,6 +40,8 @@ void ugfx_free(uGfx* gfx);
 void ugfx_set(uGfx* gfx, u16 x, u16 y, u8 color);
 void ugfx_clear(uGfx* gfx, u8 color);
 
+void ugfx_save_screen(uGfx* gfx, const char* file);
+
 void ugfx_flip(uGfx* gfx);
 
 #endif /* UCPU_VIDEO_H */

@@ -65,10 +65,14 @@ void ucpu_run(uCPU* cpu) {
 //			printf("%5hu ", cpu->reg[i]);
 //		}
 //		printf("]\n");
+//		SDL_Delay(2);
 
 		cpu->ticks++;
 	}
-	SDL_Delay(2000);
+	SDL_Delay(100);
+	ugfx_flip(cpu->gfx);
+	ugfx_save_screen(cpu->gfx, "snap.bmp");
+//	SDL_Delay(2000);
 
 	ugfx_free(cpu->gfx);
 }

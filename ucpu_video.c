@@ -88,3 +88,41 @@ void ugfx_flip(uGfx* gfx) {
 	
 	SDL_RenderPresent(gfx->renderer);
 }
+
+void ugfx_save_screen(uGfx* gfx, const char* file) {
+	SDL_Surface *surface;
+    Uint32 rmask, gmask, bmask, amask;
+	
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
+	
+	surface = SDL_CreateRGBSurface(
+			0,
+			UCPU_VIDEO_WIDTH * UCPU_WINDOW_UPSCALE, UCPU_VIDEO_HEIGHT * UCPU_WINDOW_UPSCALE,
+			24,
+			rmask, gmask, bmask, amask
+	);
+	
+	SDL_LockSurface(surface);
+	SDL_RenderReadPixels(
+			gfx->renderer, 
+			NULL,
+			surface->format->format,
+			surface->pixels,
+			surface->pitch
+	);
+	SDL_UnlockSurface(surface);
+	
+	SDL_SaveBMP(surface, file);
+	
+	SDL_FreeSurface(surface);
+}

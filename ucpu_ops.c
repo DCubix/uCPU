@@ -4,8 +4,14 @@ UCPU_DEFINE_OP(nop) {}
 UCPU_DEFINE_OP(end) { cpu->stop = true; }
 
 UCPU_DEFINE_OP(psh) { // PSH r0
-	u16 srcR = ucpu_fetch(cpu);
-	ustack_push(cpu->stack, cpu->reg[srcR]);
+	u16 src = ucpu_fetch(cpu);
+	u16 val = 0;
+	switch (form) {
+		case uArg_I: val = src; break;
+		case uArg_R: val = cpu->reg[src]; break;
+		case uArg_M: val = umem_read(cpu->ram, src); break;
+	}
+	ustack_push(cpu->stack, val);
 }
 
 UCPU_DEFINE_OP(pop) { // POP r0
@@ -138,6 +144,7 @@ UCPU_DEFINE_BOP(add, +);
 UCPU_DEFINE_BOP(sub, -);
 UCPU_DEFINE_BOP(mul, *);
 UCPU_DEFINE_BOP(div, /);
+UCPU_DEFINE_BOP(mod, %);
 UCPU_DEFINE_BOP(shl, <<);
 UCPU_DEFINE_BOP(shr, >>);
 UCPU_DEFINE_BOP(or, |);
@@ -190,6 +197,7 @@ const uOp uCPU_Ops[] = {
 	{ "sub", op(sub) },
 	{ "mul", op(mul) },
 	{ "div", op(div) },
+	{ "mod", op(mod) },
 	{ "shl", op(shl) },
 	{ "shr", op(shr) },
 	{ "and", op(and) },

@@ -65,7 +65,7 @@ void uasm_parse_line(char* str) {
 	while (!do_break) {
 		switch (state) {
 			case pState_Ready: {
-				if		(isalpha(*str))									state = pState_ParseText;
+				if		(isalpha(*str) || *str == '_' || *str == '.')	state = pState_ParseText;
 				else if (*str == ';'  )									state = pState_ParseComment;
 				else if (isdigit(*str) || *str == '$' || *str == '[')	state = pState_ParseNumber;
 				else if (isspace(*str)) {
