@@ -8,7 +8,7 @@
 
 #define UCPU_VIDEO_WIDTH 120
 #define UCPU_VIDEO_HEIGHT 96
-#define UCPU_WINDOW_UPSCALE 4
+#define UCPU_WINDOW_UPSCALE 2
 
 #define POS(x, y) (x + y * UCPU_VIDEO_WIDTH)
 

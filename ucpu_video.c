@@ -52,6 +52,7 @@ void ugfx_free(uGfx* gfx) {
 }
 
 void ugfx_set(uGfx* gfx, u16 x, u16 y, u8 color) {
+	if (color >= uCPUColor_Ignore) return;
 	umem_write(gfx->vram, x + y * UCPU_VIDEO_WIDTH, color);
 }
 

@@ -5,12 +5,13 @@ uCPU* ucpu_new(u16* program, u16 size) {
 	uCPU* cpu = (uCPU*) malloc(sizeof(uCPU));
 	cpu->call_stack = ustack_new();
 	cpu->stack = ustack_new();
-	cpu->ram = umem_new(0x6000); // 24kb of memory, 16kb of program (0x0000 - 0x3FFF), 8kb of data (0x4000 - 0x5FFF)
+	cpu->ram = umem_new(0x6000); // 48kb of memory, 32kb of program (0x0000 - 0x3FFF), 16kb of data (0x4000 - 0x5FFF)
 	cpu->gfx = ugfx_new();
 	cpu->pc = 0;
 	cpu->ticks = 0;
 	cpu->stop = false;
-	cpu->dbptr = 0x4000;
+	cpu->zero = false;
+	cpu->carry = false;
 	memset(cpu->reg, 0, RCount * sizeof(u16));
 	if (program != NULL && size > 0) {
 		for (u16 i = 0; i < size; i++) umem_write(cpu->ram, i, program[i]);
@@ -27,41 +28,17 @@ void ucpu_free(uCPU* cpu) {
 
 void ucpu_tick(uCPU* cpu) {
 	u16 i = ucpu_fetch(cpu);
-	if (uops_op_exists(i)) {
-		uCPU_Ops[i].fn(cpu);
+	u8 instr = (i & 0xFF00) >> 8;
+	u8 form = (i & 0x00FF);
+	if (uops_op_exists(instr)) {
+		uCPU_Ops[instr].fn(cpu, form);
 	} else {
-		LOG("Unknown instruction.");
+		printf("Unknown instruction: 0x%hhx\n", instr);
 	}
 }
 
 u16 ucpu_fetch(uCPU* cpu) {
 	return umem_read(cpu->ram, cpu->pc++);
-}
-
-u16* ucpu_fetch_auto(uCPU* cpu, u8 reqtype, u16* out) {
-	u16 val = ucpu_fetch(cpu);
-	u16 type = ucpu_fetch(cpu);
-	
-	if (reqtype == aAny) {
-retval:
-		if (type == aReg) {
-			if (out != NULL) *out = cpu->reg[val];
-			return &cpu->reg[val];
-		} else if (type == aMem) {
-			if (out != NULL) *out = cpu->ram->data[val];
-			return &cpu->ram->data[val];
-		} else {
-			if (out != NULL) *out = val;
-			return NULL;
-		}
-	} else {
-		if ((reqtype & type) == type) {
-			goto retval;
-		}
-	}
-	
-	LOG("Invalid argument.");
-	return NULL;
 }
 
 void ucpu_run(uCPU* cpu) {
@@ -83,10 +60,15 @@ void ucpu_run(uCPU* cpu) {
 		}
 		
 		ucpu_tick(cpu);
+//		printf("[");
+//		for (u16 i = 0; i < RCount; i++) {
+//			printf("%5hu ", cpu->reg[i]);
+//		}
+//		printf("]\n");
 
 		cpu->ticks++;
 	}
-	SDL_Delay(5000);
+	SDL_Delay(2000);
 
 	ugfx_free(cpu->gfx);
 }

@@ -1,150 +1,184 @@
 #include "ucpu_ops.h"
 
-UCPU_DEFINE_OP(end) {
-	cpu->stop = true;
+UCPU_DEFINE_OP(nop) {}
+UCPU_DEFINE_OP(end) { cpu->stop = true; }
+
+UCPU_DEFINE_OP(psh) { // PSH r0
+	u16 srcR = ucpu_fetch(cpu);
+	ustack_push(cpu->stack, cpu->reg[srcR]);
 }
 
-UCPU_DEFINE_OP(put) {
-	u16 ch = 0; ucpu_fetch_auto(cpu, aAny, &ch);
-	putc(ch, stdout);
+UCPU_DEFINE_OP(pop) { // POP r0
+	u16 dstR = ucpu_fetch(cpu);
+	cpu->reg[dstR] = ustack_pop(cpu->stack);
 }
 
-UCPU_DEFINE_OP(mov) {
-	u16* dest = ucpu_fetch_auto(cpu, aMem | aReg, NULL);
-	u16 src = 0; ucpu_fetch_auto(cpu, aAny, &src);
-	if (dest) *dest = src;
-}
-
-UCPU_DEFINE_OP(jmp) {
-	u16 to = 0;
-	ucpu_fetch_auto(cpu, aLit, &to);
+UCPU_DEFINE_OP(mov) { // MOV r0/mem r0/mem/i
+	u16 dst = ucpu_fetch(cpu);
+	u16 src = ucpu_fetch(cpu);
 	
-	cpu->pc = to;
+	switch (form) {
+		case uArg_RI: cpu->reg[dst] = src; break;
+		case uArg_RR: cpu->reg[dst] = cpu->reg[src]; break;
+		case uArg_RM: cpu->reg[dst] = umem_read(cpu->ram, src); break;
+		case uArg_MI: umem_write(cpu->ram, dst, src); break;
+		case uArg_MR: umem_write(cpu->ram, dst, cpu->reg[src]); break;
+		case uArg_MM: umem_write(cpu->ram, dst, umem_read(cpu->ram, src)); break;
+		default:
+			printf("MOV: Unknown parameters!\n");
+			break;
+	}
 }
 
-#define UCPU_DEFINE_COND_JMP(name, op) \
-UCPU_DEFINE_OP(name) { \
-	u16 a, b, to; \
-	ucpu_fetch_auto(cpu, aAny, &a); \
-	ucpu_fetch_auto(cpu, aAny, &b); \
-	ucpu_fetch_auto(cpu, aLit, &to); \
-	if (a op b) cpu->pc = to; \
-}
-
-UCPU_DEFINE_COND_JMP(jeq, ==)
-UCPU_DEFINE_COND_JMP(jne, !=)
-UCPU_DEFINE_COND_JMP(jlt, <)
-UCPU_DEFINE_COND_JMP(jgt, >)
-UCPU_DEFINE_COND_JMP(jle, <=)
-UCPU_DEFINE_COND_JMP(jge, >=)
-
-UCPU_DEFINE_OP(push) {
-	u16 val; ucpu_fetch_auto(cpu, aAny, &val);
-	ustack_push(cpu->stack, val);
-}
-
-UCPU_DEFINE_OP(pop) {
-	u16* v = ucpu_fetch_auto(cpu, aReg | aMem, NULL);
+UCPU_DEFINE_OP(vmov) { // VMOV mem r0/ram/i (for video memory)
+	u16 dst = ucpu_fetch(cpu);
+	u16 src = ucpu_fetch(cpu);
 	
-	if (ustack_empty(cpu->stack)) {
-		LOG("Stack is empty.");
-		return;
+	switch (form) {
+		case uArg_RI: umem_write(cpu->gfx->vram, cpu->reg[dst], src); break;
+		case uArg_RR: umem_write(cpu->gfx->vram, cpu->reg[dst], cpu->reg[src]); break;
+		case uArg_RM: umem_write(cpu->gfx->vram, cpu->reg[dst], umem_read(cpu->ram, src)); break;
+		case uArg_MI: umem_write(cpu->gfx->vram, dst, src); break;
+		case uArg_MR: umem_write(cpu->gfx->vram, dst, cpu->reg[src]); break;
+		case uArg_MM: umem_write(cpu->gfx->vram, dst, umem_read(cpu->ram, src)); break;
+		default:
+			printf("VMOV: Unknown parameters!\n");
+			break;
+	}
+}
+
+UCPU_DEFINE_OP(vpix) { // VPIX color (pops 2 values from the stack (x and y))
+	u16 col = ucpu_fetch(cpu);
+	u16 x = ustack_pop(cpu->stack);
+	u16 y = ustack_pop(cpu->stack);
+	
+	ugfx_set(cpu->gfx, x, y, col);
+}
+
+UCPU_DEFINE_OP(sys) {
+	u16 c = ucpu_fetch(cpu);
+	switch (c) {
+		case uSys_Reset: {
+			cpu->pc = 0;
+			cpu->ticks = 0;
+			cpu->stack->top = -1;
+			memset(cpu->ram->data, 0, sizeof(u16) * cpu->ram->size);
+			memset(cpu->reg, 0, sizeof(u16) * RCount);
+		} break;
+		case uSys_Gfx_Clear: {
+			u8 color = 0;
+			if (!ustack_empty(cpu->stack)) color = ustack_pop(cpu->stack);
+			ugfx_clear(cpu->gfx, color);
+		} break;
+		case uSys_Gfx_Flip: {
+			ugfx_flip(cpu->gfx);
+		} break;
+	}
+}
+
+UCPU_DEFINE_OP(cmp) { // CMP r0 r1
+	u16 a = ucpu_fetch(cpu);
+	u16 b = ucpu_fetch(cpu);
+	switch (form) {
+		case uArg_RI: a = cpu->reg[a]; break;
+		case uArg_RR: a = cpu->reg[a]; b = cpu->reg[b]; break;
+		case uArg_RM: a = cpu->reg[a]; b = umem_read(cpu->ram, b); break;
+		case uArg_MI: a = umem_read(cpu->ram, a); break;
+		case uArg_MR: a = umem_read(cpu->ram, a); b = cpu->reg[b]; break;
+		case uArg_MM: a = umem_read(cpu->ram, a); b = umem_read(cpu->ram, b); break;
+		default:
+			printf("CMP: Unknown parameters!\n");
+			break;
 	}
 	
-	if (v) *v = ustack_pop(cpu->stack);
+	i16 v = a - b;
+	if		(v == 0) cpu->zero = 1, cpu->carry = 0;
+	else if (v >  0) cpu->zero = 0, cpu->carry = 0;
+	else if (v <  0) cpu->zero = 0, cpu->carry = 1;
 }
 
-#define UCPU_DEFINE_BINOP(name, op) \
+// Jxx loc
+#define UCPU_DEFINE_COND(name, chk) \
 UCPU_DEFINE_OP(name) { \
-	u16 a, b; \
-	u16* to = ucpu_fetch_auto(cpu, aReg | aMem, NULL); \
-	ucpu_fetch_auto(cpu, aAny, &a); \
-	ucpu_fetch_auto(cpu, aAny, &b); \
-	if (to) *to = a op b; \
+	u16 loc = ucpu_fetch(cpu); \
+	bool z = cpu->zero, c = cpu->carry; \
+	if (chk) { \
+		cpu->pc = loc; \
+	} \
 }
 
-UCPU_DEFINE_BINOP(add, +)
-UCPU_DEFINE_BINOP(sub, -)
-UCPU_DEFINE_BINOP(mul, *)
-UCPU_DEFINE_BINOP(div, /)
-UCPU_DEFINE_BINOP(shl, <<)
-UCPU_DEFINE_BINOP(shr, >>)
+UCPU_DEFINE_COND(jmp, true)
+UCPU_DEFINE_COND(jeq, (z && !c))
+UCPU_DEFINE_COND(jne, !(z && !c))
+UCPU_DEFINE_COND(jlt, (!z && c))
+UCPU_DEFINE_COND(jgt, (!z && !c))
+UCPU_DEFINE_COND(jle, (!z && c) || (z && !c))
+UCPU_DEFINE_COND(jge, (!z && !c) || (z && !c))
 
-UCPU_DEFINE_OP(inc) {
-	u16* to = ucpu_fetch_auto(cpu, aReg | aMem, NULL); \
-	if (to) (*to)++;
+		
+// OP a b (OP the value of b to a)
+#define UCPU_DEFINE_BOP(name, op) \
+UCPU_DEFINE_OP(name) { \
+	u16 dst = ucpu_fetch(cpu); \
+	u16 src = ucpu_fetch(cpu); \
+	switch (form) { \
+		case uArg_RI: cpu->reg[dst] = cpu->reg[dst] op src; break; \
+		case uArg_RR: cpu->reg[dst] = cpu->reg[dst] op cpu->reg[src]; break; \
+		case uArg_RM: cpu->reg[dst] = cpu->reg[dst] op umem_read(cpu->ram, src); break; \
+		case uArg_MI: cpu->ram->data[dst] = cpu->ram->data[dst] op src; break; \
+		case uArg_MR: cpu->ram->data[dst] = cpu->ram->data[dst] op cpu->reg[src]; break; \
+		case uArg_MM: cpu->ram->data[dst] = cpu->ram->data[dst] op umem_read(cpu->ram, src); break; \
+		default: \
+			printf("BINOP: Unknown parameters!\n"); \
+			break; \
+	} \
 }
 
-UCPU_DEFINE_OP(dec) {
-	u16* to = ucpu_fetch_auto(cpu, aReg | aMem, NULL); \
-	if (to) (*to)--;
+UCPU_DEFINE_BOP(add, +);
+UCPU_DEFINE_BOP(sub, -);
+UCPU_DEFINE_BOP(mul, *);
+UCPU_DEFINE_BOP(div, /);
+UCPU_DEFINE_BOP(shl, <<);
+UCPU_DEFINE_BOP(shr, >>);
+UCPU_DEFINE_BOP(or, |);
+UCPU_DEFINE_BOP(and, &);
+UCPU_DEFINE_BOP(xor, ^);
+
+UCPU_DEFINE_OP(not) {
+	u16 dst = ucpu_fetch(cpu);
+	switch (form) {
+		case uArg_R: cpu->reg[dst] = ~cpu->reg[dst]; break;
+		case uArg_M: umem_write(cpu->ram, dst, ~umem_read(cpu->ram, dst)); break;
+		default:
+			printf("NOT: Unknown parameters!\n");
+			break;
+	}
 }
 
 UCPU_DEFINE_OP(call) {
-	u16 routine; ucpu_fetch_auto(cpu, aLit, &routine);
+	u16 loc = ucpu_fetch(cpu);
 	ustack_push(cpu->call_stack, cpu->pc);
-	cpu->pc = routine;
+	cpu->pc = loc;
 }
 
 UCPU_DEFINE_OP(ret) {
 	if (ustack_empty(cpu->call_stack)) {
-		LOG("Unexpected return.");
+		printf("RET: Cannot return!\n");
 		return;
 	}
 	cpu->pc = ustack_pop(cpu->call_stack);
 }
 
-UCPU_DEFINE_OP(flip) {
-	ugfx_flip(cpu->gfx);
-}
-
-UCPU_DEFINE_OP(cls) {
-	u16 color = 0; ucpu_fetch_auto(cpu, aAny, &color);
-	ugfx_clear(cpu->gfx, color);
-}
-
-UCPU_DEFINE_OP(vmov) { // move value to video/screen memory
-	u16 vto; ucpu_fetch_auto(cpu, aAny, &vto);
-	u16 vval; ucpu_fetch_auto(cpu, aAny, &vval);
-	if (vval >= 4) return;
-	umem_write(cpu->gfx->vram, vto, vval);
-}
-
-UCPU_DEFINE_OP(vdrw) { // video draw 4x4 sprite
-	u16 vx; ucpu_fetch_auto(cpu, aAny, &vx);
-	u16 vy; ucpu_fetch_auto(cpu, aAny, &vy);
-	u16 spr; ucpu_fetch_auto(cpu, aLit | aReg, &spr);
-	
-	u16 i = spr;
-	for (u16 y = 0; y < 4; y++) {
-		for (u16 x = 0; x < 4; x++) {
-			u16 col = umem_read(cpu->ram, i++);
-			if (col >= 4) continue;
-			ugfx_set(cpu->gfx, vx+x, vy+y, col);
-		}
-	}
-}
-
-UCPU_DEFINE_OP(db) { // define byte/short, simplified form! db 0x3f5f
-	u16 v = ucpu_fetch(cpu);
-	umem_write(cpu->ram, cpu->dbptr++, v);
-}
-
-UCPU_DEFINE_OP(dq) { // define four bytes/shorts, simplified form! db 0x3 0x3 0x4 0x4
-	u16 a = ucpu_fetch(cpu);
-	u16 b = ucpu_fetch(cpu);
-	u16 c = ucpu_fetch(cpu);
-	u16 d = ucpu_fetch(cpu);
-	umem_write(cpu->ram, cpu->dbptr++, a);
-	umem_write(cpu->ram, cpu->dbptr++, b);
-	umem_write(cpu->ram, cpu->dbptr++, c);
-	umem_write(cpu->ram, cpu->dbptr++, d);
-}
-
 const uOp uCPU_Ops[] = {
+	{ "nop", op(nop) },
 	{ "end", op(end) },
-	{ "put", op(put) },
+	{ "sys", op(sys) },
+	{ "psh", op(psh) },
+	{ "pop", op(pop) },
 	{ "mov", op(mov) },
+	{ "vmov", op(vmov) },
+	{ "vpix", op(vpix) },
+	{ "cmp", op(cmp) },
 	{ "jmp", op(jmp) },
 	{ "jeq", op(jeq) },
 	{ "jne", op(jne) },
@@ -152,24 +186,18 @@ const uOp uCPU_Ops[] = {
 	{ "jgt", op(jgt) },
 	{ "jle", op(jle) },
 	{ "jge", op(jge) },
-	{ "push", op(push) },
-	{ "pop", op(pop) },
 	{ "add", op(add) },
 	{ "sub", op(sub) },
 	{ "mul", op(mul) },
 	{ "div", op(div) },
 	{ "shl", op(shl) },
 	{ "shr", op(shr) },
-	{ "inc", op(inc) },
-	{ "dec", op(dec) },
+	{ "and", op(and) },
+	{ "or", op(or) },
+	{ "xor", op(xor) },
+	{ "not", op(not) },
 	{ "call", op(call) },
 	{ "ret", op(ret) },
-	{ "flip", op(flip) },
-	{ "cls", op(cls) },
-	{ "vmov", op(vmov) },
-	{ "db", op(db) },
-	{ "dq", op(dq) },
-	{ "vdrw", op(vdrw) },
 	{ NULL, NULL } // guard
 };
 

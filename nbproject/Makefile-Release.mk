@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/main.o \
+	${OBJECTDIR}/ucpu_asm.o \
 	${OBJECTDIR}/ucpu_core.o \
 	${OBJECTDIR}/ucpu_ops.o \
 	${OBJECTDIR}/ucpu_types.o \
@@ -70,6 +71,11 @@ ${OBJECTDIR}/main.o: main.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
+
+${OBJECTDIR}/ucpu_asm.o: ucpu_asm.c
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_asm.o ucpu_asm.c
 
 ${OBJECTDIR}/ucpu_core.o: ucpu_core.c
 	${MKDIR} -p ${OBJECTDIR}
