@@ -18,13 +18,14 @@ typedef struct uOp_t {
 extern const uOp uCPU_Ops[];
 
 u16 uops_get_op(const char* name);
+const char* uops_get_op_name(u16 id);
 bool uops_op_exists(u16 index);
 
 #define UOP(name, form) (((uops_get_op(name) & 0xFF) << 8) | (form & 0xFF))
 #define UOPN(name) UOP(name, 0)
 
 enum uSysCalls {
-	uSys_Reset = 0xA000,
+	uSys_Reset = 0x0000,
 	uSys_Gfx_Clear,
 	uSys_Gfx_Flip,
 };

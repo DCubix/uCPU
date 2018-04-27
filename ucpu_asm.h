@@ -46,9 +46,9 @@ u16Arr* arr_new();
 void arr_add(u16Arr* arr, u16 v);
 
 void uasm_parse_line(char* str);
-void uasm_parse(char* str);
+void uasm_parse(FILE *fp);
 
-u16* uasm_transform(char* str, u16* size);
+u16* uasm_transform(FILE *fp, u16* size);
 
 #endif /* UCPU_ASM_H */
 

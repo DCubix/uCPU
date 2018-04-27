@@ -70,32 +70,32 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/ucpu.exe: ${OBJECTFILES}
 ${OBJECTDIR}/main.o: main.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
+	$(COMPILE.c) -g -DDEBUG `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.c
 
 ${OBJECTDIR}/ucpu_asm.o: ucpu_asm.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_asm.o ucpu_asm.c
+	$(COMPILE.c) -g -DDEBUG `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_asm.o ucpu_asm.c
 
 ${OBJECTDIR}/ucpu_core.o: ucpu_core.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_core.o ucpu_core.c
+	$(COMPILE.c) -g -DDEBUG `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_core.o ucpu_core.c
 
 ${OBJECTDIR}/ucpu_ops.o: ucpu_ops.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_ops.o ucpu_ops.c
+	$(COMPILE.c) -g -DDEBUG `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_ops.o ucpu_ops.c
 
 ${OBJECTDIR}/ucpu_types.o: ucpu_types.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_types.o ucpu_types.c
+	$(COMPILE.c) -g -DDEBUG `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_types.o ucpu_types.c
 
 ${OBJECTDIR}/ucpu_video.o: ucpu_video.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.c) -g `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_video.o ucpu_video.c
+	$(COMPILE.c) -g -DDEBUG `pkg-config --cflags sdl2` -std=c11  -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/ucpu_video.o ucpu_video.c
 
 # Subprojects
 .build-subprojects:

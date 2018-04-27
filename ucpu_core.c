@@ -1,6 +1,8 @@
 #include "ucpu_core.h"
 #include "ucpu_ops.h"
 
+#include <string.h>
+
 uCPU* ucpu_new(u16* program, u16 size) {
 	uCPU* cpu = (uCPU*) malloc(sizeof(uCPU));
 	cpu->call_stack = ustack_new();
@@ -65,8 +67,8 @@ void ucpu_run(uCPU* cpu) {
 //			printf("%5hu ", cpu->reg[i]);
 //		}
 //		printf("]\n");
-//		SDL_Delay(2);
-
+//		SDL_Delay(1);
+		
 		cpu->ticks++;
 	}
 	SDL_Delay(100);

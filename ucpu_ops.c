@@ -3,6 +3,39 @@
 UCPU_DEFINE_OP(nop) {}
 UCPU_DEFINE_OP(end) { cpu->stop = true; }
 
+UCPU_DEFINE_OP(in) { // IN reg/mem
+	u16 dst = ucpu_fetch(cpu);
+	u16 val = 0;
+	scanf("%hu", &val);
+	
+	switch (form) {
+		case uArg_R: cpu->reg[dst] = val; break;
+		case uArg_M: umem_write(cpu->ram, dst, val); break;
+	}
+}
+
+UCPU_DEFINE_OP(out) { // OUT any
+	u16 src = ucpu_fetch(cpu);
+	u16 val = 0;
+	switch (form) {
+		case uArg_I: val = src; break;
+		case uArg_R: val = cpu->reg[src]; break;
+		case uArg_M: val = umem_read(cpu->ram, src); break;
+	}
+	putchar(val);
+}
+
+UCPU_DEFINE_OP(outn) { // OUTn any
+	u16 src = ucpu_fetch(cpu);
+	u16 val = 0;
+	switch (form) {
+		case uArg_I: val = src; break;
+		case uArg_R: val = cpu->reg[src]; break;
+		case uArg_M: val = umem_read(cpu->ram, src); break;
+	}
+	printf("%hu", val);
+}
+
 UCPU_DEFINE_OP(psh) { // PSH r0
 	u16 src = ucpu_fetch(cpu);
 	u16 val = 0;
@@ -62,6 +95,7 @@ UCPU_DEFINE_OP(vpix) { // VPIX color (pops 2 values from the stack (x and y))
 }
 
 UCPU_DEFINE_OP(sys) {
+
 	u16 c = ucpu_fetch(cpu);
 	switch (c) {
 		case uSys_Reset: {
@@ -113,7 +147,11 @@ UCPU_DEFINE_OP(name) { \
 	} \
 }
 
-UCPU_DEFINE_COND(jmp, true)
+UCPU_DEFINE_OP(jmp) {
+	u16 loc = ucpu_fetch(cpu);
+	cpu->pc = loc;
+}
+
 UCPU_DEFINE_COND(jeq, (z && !c))
 UCPU_DEFINE_COND(jne, !(z && !c))
 UCPU_DEFINE_COND(jlt, (!z && c))
@@ -179,6 +217,9 @@ UCPU_DEFINE_OP(ret) {
 const uOp uCPU_Ops[] = {
 	{ "nop", op(nop) },
 	{ "end", op(end) },
+	{ "in", op(in) },
+	{ "out", op(out) },
+	{ "outn", op(outn) },
 	{ "sys", op(sys) },
 	{ "psh", op(psh) },
 	{ "pop", op(pop) },
@@ -216,6 +257,15 @@ u16 uops_get_op(const char* name) {
 		i++;
 	}
 	return 0;
+}
+
+const char* uops_get_op_name(u16 id) {
+	u16 i = 0;
+	while (uCPU_Ops[i].name != NULL) {
+		if (i == id) return uCPU_Ops[i].name;
+		i++;
+	}
+	return NULL;
 }
 
 bool uops_op_exists(u16 index) {

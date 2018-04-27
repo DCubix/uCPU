@@ -18,3 +18,5 @@ $ make
 ```
 $ ucpu <binary file> or <assembly code file>
 ```
+
+See test.ASM for an example.

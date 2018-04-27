@@ -13,7 +13,6 @@ uGfx* ugfx_new() {
 	uGfx* gfx = (uGfx*) malloc(sizeof(uGfx));
 	gfx->vram = umem_new(UCPU_VIDEO_WIDTH * UCPU_VIDEO_HEIGHT);
 	
-	LOG("Init");
 	SDL_Init(SDL_INIT_VIDEO);
 	
 	gfx->window = SDL_CreateWindow(

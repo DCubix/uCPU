@@ -14,6 +14,7 @@ int strend(const char *s, const char *t) {
 }
 
 int main(int argc, char** argv) {
+#ifndef DEBUG
 	u16 program_size;
 	u16 *program;
 	if (argc > 1) {
@@ -31,38 +32,76 @@ int main(int argc, char** argv) {
 			
 			program = (u16*) malloc(sizeof(u16) * program_size);
 			fread(program, sizeof(u16), program_size, fp);
-		} else if (strend(argv[1], ".asm") || strend(argv[1], ".s") || strend(argv[1], ".S")) {
+		} else if (strend(argv[1], ".asm") || strend(argv[1], ".ASM") || strend(argv[1], ".s") || strend(argv[1], ".S")) {
 			fp = fopen(argv[1], "r");
 			if (!fp) {
 				printf("Invalid file.\n");
 				return EXIT_FAILURE;
 			}
-			fseek(fp, 0, SEEK_END);
-			u16 sz = ftell(fp);
-			rewind(fp);
-			
-			char* prog = (char*) malloc(sizeof(char) * sz);
-			fread(prog, sizeof(char), sz, fp);
-			prog[sz] = 0;
-			program = uasm_transform(prog, &program_size);
+
+			program = uasm_transform(fp, &program_size);
 		}
 		
-		if (fp) fclose(fp);
+		if (fp) {
+			fclose(fp);
 	
-		uCPU* cpu = ucpu_new(program, program_size);
+			uCPU* cpu = ucpu_new(program, program_size);
 
-		FILE* dfp = fopen("dump.bin", "wb");
-		if (dfp) {
-			umem_dump(cpu->ram, dfp);
-			fclose(dfp);
+			FILE* dfp = fopen("dump.bin", "wb");
+			if (dfp) {
+				umem_dump(cpu->ram, dfp);
+				fclose(dfp);
+			}
+
+			ucpu_run(cpu);
+
+			ucpu_free(cpu);
 		}
-
-		ucpu_run(cpu);
-
-		ucpu_free(cpu);
-
-		return EXIT_SUCCESS;
 	}
-	return EXIT_FAILURE;
+#else
+//	char prog[] = 
+//	"mov $0 100 ; Move 100 to register 0\n"
+//	"mul $0 2 ; Multiply register 0 by 2\n"
+//	"; Divide register 0 by 3\n"
+//	"div $0 3\n"
+//	"outn $0\n"
+//	"out 10\n"
+//	"end";
+//	
+//	u16* program = program = uasm_transform(prog, &program_size);
+//	uCPU* cpu = ucpu_new(program, program_size);
+//
+//	FILE* dfp = fopen("dump.bin", "wb");
+//	if (dfp) {
+//		umem_dump(cpu->ram, dfp);
+//		fclose(dfp);
+//	}
+//
+//	ucpu_run(cpu);
+//
+//	ucpu_free(cpu);
+	
+	FILE* fp = fopen("test.ASM", "r");
+	if (!fp) {
+		printf("Invalid file.\n");
+		return EXIT_FAILURE;
+	}
+
+	u16 program_size;
+	u16* program;
+	program = uasm_transform(fp, &program_size);
+	uCPU* cpu = ucpu_new(program, program_size);
+
+	FILE* dfp = fopen("dump.bin", "wb");
+	if (dfp) {
+		umem_dump(cpu->ram, dfp);
+		fclose(dfp);
+	}
+
+	ucpu_run(cpu);
+
+	ucpu_free(cpu);
+#endif
+	return EXIT_SUCCESS;
 }
 

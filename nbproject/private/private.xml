@@ -6,14 +6,6 @@
     </data>
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/Diego/source/repos/ucpu/main.c</file>
-            <file>file:/C:/Users/Diego/source/repos/ucpu/ucpu_ops.c</file>
-            <file>file:/C:/Users/Diego/source/repos/ucpu/ucpu_ops.h</file>
-            <file>file:/C:/Users/Diego/source/repos/ucpu/ucpu_asm.c</file>
-            <file>file:/C:/Users/Diego/source/repos/ucpu/ucpu_video.c</file>
-            <file>file:/C:/Users/Diego/source/repos/ucpu/ucpu_core.c</file>
-            <file>file:/C:/Users/Diego/source/repos/ucpu/ucpu_video.h</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>
