@@ -25,7 +25,9 @@ enum pTType {
 	pTType_Label,
 	pTType_Reg,
 	pTType_Mem,
-	pTType_Imm
+	pTType_Imm,
+	pTType_Form,
+	pTType_ValueType
 };
 
 typedef struct pLabel_t {

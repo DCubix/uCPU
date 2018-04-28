@@ -37,6 +37,9 @@ start:
 	jge swap_y
 	cmp $1 0
 	jle swap_y
+	btn $7 4
+	cmp $7 1
+	jeq reset
 	jmp start
 	; Game Loop
 
@@ -80,3 +83,10 @@ swap_y:
 
 return:
 	ret
+
+reset:
+	mov $0 0
+	mov $1 0
+	mov $2 0
+	mov $3 0
+	jmp start

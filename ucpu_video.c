@@ -69,8 +69,6 @@ void ugfx_flip(uGfx* gfx) {
 		for (int x = 0; x < UCPU_VIDEO_WIDTH; x++) {
 			int index = x + y * UCPU_VIDEO_WIDTH;
 			u8 cid = umem_read(gfx->vram, index);
-			if (cid >= 4) continue;
-
 			uColor col = uCPU_Palette[cid];
 			int pidx = index * 3;
 			pixels[pidx + 0] = col.r;

@@ -118,9 +118,10 @@ UCPU_DEFINE_OP(vspr) { // VSPR memloc/reg (pops 2 values from the stack (x and y
 }
 
 UCPU_DEFINE_OP(sys) {
-
 	u16 c = ucpu_fetch(cpu);
-	switch (c) {
+	u8 arg0 = (c & 0xFF00) >> 8;
+	u8 arg1 = (c & 0x00FF);
+	switch (arg1) {
 		case uSys_Reset: {
 			cpu->pc = 0;
 			cpu->stack->top = -1;
@@ -128,9 +129,7 @@ UCPU_DEFINE_OP(sys) {
 			memset(cpu->reg, 0, sizeof(u16) * RCount);
 		} break;
 		case uSys_Gfx_Clear: {
-			u8 color = 0;
-			if (!ustack_empty(cpu->stack)) color = ustack_pop(cpu->stack);
-			ugfx_clear(cpu->gfx, color);
+			ugfx_clear(cpu->gfx, arg0);
 		} break;
 		case uSys_Gfx_Flip: {
 			ugfx_flip(cpu->gfx);
@@ -236,6 +235,17 @@ UCPU_DEFINE_OP(ret) {
 	cpu->pc = ustack_pop(cpu->call_stack);
 }
 
+UCPU_DEFINE_OP(btn) { // BTN $0 0 // store button 0 state to register 0
+	u16 reg = ucpu_fetch(cpu);
+	u16 btn = ucpu_fetch(cpu);
+	switch (form) {
+		case uArg_RI: cpu->reg[reg] = cpu->button_state[btn]; break;
+		default:
+			printf("Invalid arguments!\n");
+			break;
+	}
+}
+
 const uOp uCPU_Ops[] = {
 	{ "nop", op(nop) },
 	{ "end", op(end) },
@@ -270,6 +280,7 @@ const uOp uCPU_Ops[] = {
 	{ "not", op(not) },
 	{ "call", op(call) },
 	{ "ret", op(ret) },
+	{ "btn", op(btn) },
 	{ NULL, NULL } // guard
 };
 

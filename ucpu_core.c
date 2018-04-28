@@ -95,7 +95,6 @@ void ucpu_run(uCPU* cpu) {
 		//SDL_Delay(1);
 	}
 	SDL_Delay(100);
-	ugfx_flip(cpu->gfx);
 	ugfx_save_screen(cpu->gfx, "snap.bmp");
 //	SDL_Delay(2000);
 

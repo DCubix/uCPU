@@ -10,13 +10,11 @@
 #define UCPU_VIDEO_HEIGHT 96
 #define UCPU_WINDOW_UPSCALE 2
 
-#define POS(x, y) (x + y * UCPU_VIDEO_WIDTH)
-
 enum uCPUColor {
-	uCPUColor_Bright = 0,
-	uCPUColor_Shade1,
-	uCPUColor_Shade2,
-	uCPUColor_Dark,
+	uCPUColor_White = 0,
+	uCPUColor_Gray,
+	uCPUColor_DarkGray,
+	uCPUColor_Black,
 	uCPUColor_Ignore,
 };
 
