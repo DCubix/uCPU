@@ -14,7 +14,7 @@ uGfx* ugfx_new() {
 	gfx->vram = umem_new(UCPU_VIDEO_WIDTH * UCPU_VIDEO_HEIGHT);
 	
 	SDL_Init(SDL_INIT_VIDEO);
-	
+		
 	gfx->window = SDL_CreateWindow(
 			"μCPU",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -27,7 +27,7 @@ uGfx* ugfx_new() {
 		return NULL;
 	}
 	
-	gfx->renderer = SDL_CreateRenderer(gfx->window, 0, 0);
+	gfx->renderer = SDL_CreateRenderer(gfx->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (!gfx->renderer) {
 		LOG("Renderer");
 		LOG(SDL_GetError());
@@ -52,6 +52,7 @@ void ugfx_free(uGfx* gfx) {
 
 void ugfx_set(uGfx* gfx, u16 x, u16 y, u8 color) {
 	if (color >= uCPUColor_Ignore) return;
+	if (x < 0 || x >= UCPU_VIDEO_WIDTH || y < 0 || y >= UCPU_VIDEO_HEIGHT) return;
 	umem_write(gfx->vram, x + y * UCPU_VIDEO_WIDTH, color);
 }
 

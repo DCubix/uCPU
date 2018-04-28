@@ -2,13 +2,15 @@
 #define UCPU_ASM_H
 
 #include "ucpu_types.h"
+#include "ucpu_core.h"
 
 enum pState {
 	pState_Error = 0,
 	pState_Ready,
 	pState_ParseText,
 	pState_ParseComment,
-	pState_ParseNumber
+	pState_ParseNumber,
+	pState_ParseData
 };
 
 enum tState {
@@ -45,10 +47,10 @@ typedef struct u16Arr_t {
 u16Arr* arr_new();
 void arr_add(u16Arr* arr, u16 v);
 
-void uasm_parse_line(char* str);
-void uasm_parse(FILE *fp);
+void uasm_parse_line(uCPU* cpu, char* str);
+void uasm_parse(uCPU* cpu, FILE *fp);
 
-u16* uasm_transform(FILE *fp, u16* size);
+u16* uasm_transform(uCPU* cpu, FILE *fp, u16* size);
 
 #endif /* UCPU_ASM_H */
 

@@ -26,6 +26,8 @@ u16 labelN = 0;
 pTok tokens[0x4000];
 u16 g_tokens = 0;
 
+u16 g_data_addr = 0x4000;
+
 int uasm_find_label(const char* name) {
 	for (u16 i = 0; i < labelN; i++) {
 		if (strcmp(labels[i].name, name) == 0) return labels[i].addr;
@@ -54,7 +56,7 @@ int atoix(char *str) {
 	return val;
 }
 
-void uasm_parse_line(char* str) {
+void uasm_parse_line(uCPU* cpu, char* str) {
 	if (strlen(str) <= 1) return;
 
 //	printf("%s\n", str);
@@ -69,6 +71,7 @@ void uasm_parse_line(char* str) {
 			case pState_Ready: {
 				if		(isalpha(*str) || *str == '_' || *str == '.')	state = pState_ParseText;
 				else if (*str == ';'  )									state = pState_ParseComment;
+				else if (*str == '%'  )									state = pState_ParseData;
 				else if (isdigit(*str) || *str == '$' || *str == '[')	state = pState_ParseNumber;
 				else if (isspace(*str)) {
 					str++;
@@ -81,8 +84,34 @@ void uasm_parse_line(char* str) {
 				}
 			} break;
 			case pState_Error: do_break = true; break;
+			case pState_ParseData: {
+				printf("[DATA]");
+				str++;
+				while (*str != '%' && *str != '\0') {
+					if (isdigit(*str)) {
+						char buf[32] = {0};
+						u16 i = 0;
+						while (!isspace(*str) && *str != '\0') {
+							buf[i] = *str;
+							i++;
+							str++;
+						}
+						buf[i] = 0;
+						umem_write(cpu->ram, g_data_addr++, atoix(buf));
+					} else if (*str == '\'') {
+						str++;
+						while (*str != '\'' && *str != '\0') {
+							umem_write(cpu->ram, g_data_addr++, *str);
+							str++;
+						}
+					} else {
+						str++;
+					}
+				}
+				state = pState_Ready;
+			} break;
 			case pState_ParseComment: {
-//				printf("[COMMENT]");
+				printf("[COMMENT]");
 				while (*str != '\0') str++;
 				state = pState_Ready;
 			} break;
@@ -91,14 +120,14 @@ void uasm_parse_line(char* str) {
 				if (*str == '$') {
 					type = pTType_Reg;
 					str++;
-//					printf("[REG]");
+					printf("[REG]");
 				} else if (*str == '[') {
 					type = pTType_Mem;
 					str++;
-//					printf("[MEM]");
+					printf("[MEM]");
 				} else {
 					type = pTType_Imm;
-//					printf("[IMM]");
+					printf("[IMM]");
 				}
 				char buf[32] = {0};
 				u16 i = 0;
@@ -143,7 +172,7 @@ void uasm_parse_line(char* str) {
 					}
 					line_has_label = true;
 					uasm_add_label(buf, g_tokens);
-//					printf("[DEF_LBL]");
+					printf("[DEF_LBL]");
 					
 					str++;
 					break;
@@ -155,18 +184,18 @@ void uasm_parse_line(char* str) {
 					line_has_instr = true;
 					tok->type = pTType_Instr;
 					tok->value = uops_get_op(buf);
-//					printf("[INST]");
+					printf("[INST]");
 				} else {
 					tok->type = pTType_Label;
 					tok->value = 0;
-//					printf("[LBL]");
+					printf("[LBL]");
 				}
 				token_index++;
 				g_tokens++;
 			} break;
 		}
 	}
-//	printf("\n");
+	printf("\n");
 }
 
 char* readline(FILE *fp, char *buffer) {
@@ -198,25 +227,26 @@ char* readline(FILE *fp, char *buffer) {
 	return buffer;
 }
 
-void uasm_parse(FILE *fp) {
+void uasm_parse(uCPU* cpu, FILE *fp) {
 	if (fp == NULL) {
 		return;
 	}
 
 	char *buf;
 	while ((buf = readline(fp, NULL)) != NULL) {
-		uasm_parse_line(buf);
+		uasm_parse_line(cpu, buf);
 		free(buf);
 	}
 }
 
-u16* uasm_transform(FILE *fp, u16* size) {
+u16* uasm_transform(uCPU* cpu, FILE *fp, u16* size) {
 	g_tokens = 0;
+	g_data_addr = 0x4000;
 	
 	u8 state = tState_Ready;
 	
 	u16Arr *prog = arr_new();
-	uasm_parse(fp);
+	uasm_parse(cpu, fp);
 	
 	// Assign label locations
 	for (u16 i = 0; i < g_tokens; i++) {

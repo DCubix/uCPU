@@ -94,13 +94,35 @@ UCPU_DEFINE_OP(vpix) { // VPIX color (pops 2 values from the stack (x and y))
 	ugfx_set(cpu->gfx, x, y, col);
 }
 
+UCPU_DEFINE_OP(vspr) { // VSPR memloc/reg (pops 2 values from the stack (x and y))
+	u16 loc = ucpu_fetch(cpu);
+	u16 x = ustack_pop(cpu->stack);
+	u16 y = ustack_pop(cpu->stack);
+	
+	u16 src = 0;
+	switch (form) {
+		case uArg_M: src = loc; break;
+		case uArg_R: src = cpu->reg[loc]; break;
+		default:
+			printf("Invalid argument.\n");
+			return;
+	}
+	
+	u16 addr = src;
+	for (u16 py = 0; py < 8; py++) {
+		for (u16 px = 0; px < 8; px++) {
+			ugfx_set(cpu->gfx, px+x, py+y, umem_read(cpu->ram, addr));
+			addr++;
+		}
+	}
+}
+
 UCPU_DEFINE_OP(sys) {
 
 	u16 c = ucpu_fetch(cpu);
 	switch (c) {
 		case uSys_Reset: {
 			cpu->pc = 0;
-			cpu->ticks = 0;
 			cpu->stack->top = -1;
 			memset(cpu->ram->data, 0, sizeof(u16) * cpu->ram->size);
 			memset(cpu->reg, 0, sizeof(u16) * RCount);
@@ -226,6 +248,7 @@ const uOp uCPU_Ops[] = {
 	{ "mov", op(mov) },
 	{ "vmov", op(vmov) },
 	{ "vpix", op(vpix) },
+	{ "vspr", op(vspr) },
 	{ "cmp", op(cmp) },
 	{ "jmp", op(jmp) },
 	{ "jeq", op(jeq) },

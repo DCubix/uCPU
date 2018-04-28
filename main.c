@@ -81,16 +81,19 @@ int main(int argc, char** argv) {
 //
 //	ucpu_free(cpu);
 	
-	FILE* fp = fopen("test.ASM", "r");
+	FILE* fp = fopen("game.ASM", "r");
 	if (!fp) {
 		printf("Invalid file.\n");
 		return EXIT_FAILURE;
 	}
-
+	
 	u16 program_size;
 	u16* program;
-	program = uasm_transform(fp, &program_size);
-	uCPU* cpu = ucpu_new(program, program_size);
+	uCPU* cpu = ucpu_new();
+	
+	program = uasm_transform(cpu, fp, &program_size);
+	
+	ucpu_load(cpu, program, program_size);
 
 	FILE* dfp = fopen("dump.bin", "wb");
 	if (dfp) {
